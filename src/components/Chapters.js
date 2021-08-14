@@ -1,9 +1,9 @@
 import React from 'react'
 import Chapter from './Chapter'
+import { List } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
 
-const Chapters = (props) => {
-  const chapters = props.chapters
+const Chapters = ({ chapters }) => {
 
   return (
     <>
@@ -11,7 +11,9 @@ const Chapters = (props) => {
         chapters.map((chapter) => (
           <div key={chapter.id}>
             <Link to={`/chapters/${chapter.id}`}>
-              <Chapter key={chapter.id} chapter={chapter} />
+              <List>
+                <Chapter key={chapter.id} chapter={chapter} />
+              </List>
             </Link>
           </div>
         ))

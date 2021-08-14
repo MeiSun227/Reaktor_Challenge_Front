@@ -1,41 +1,41 @@
 import React, { useState, useEffect } from 'react'
 import Chapters from './components/Chapters'
-import chapterService from './services/chapterService'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Link, Switch, Route } from 'react-router-dom'
 import Rules from './components/Rules'
 import { Container, Header, Input, Menu, Segment, Divider } from 'semantic-ui-react'
+import ruleBookService from './services/ruleBookService'
 
 const App = () => {
   const [chapters, setChapters] = useState([])
-  const [search, setNewSearch] = useState('')
+  const [rules, setRules] = useState([])
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
-    chapterService
-      .getAll()
-      .then(ruleData => {
-        setChapters(ruleData)
-      })
-  }, [])
+    if (search !== '') {
+      ruleBookService
+        .search(search)
+        .then(data => {
+          setRules(data)
+        })
+    } else {
+      ruleBookService
+        .getChapters()
+        .then(data => {
+          setChapters(data)
+        })
+    }
+  }, [search])
 
   const handleSearch = (event) => {
     event.preventDefault()
-    console.log(event.target.value)
-    setNewSearch(event.target.value)
+    setSearch(event.target.value)
   }
+
   const handleResetSearch = () => {
-    setNewSearch('')
+    setSearch('')
   }
 
-  const rulesArr = []
-  chapters.forEach(c => {
-    c.rules.forEach(r => {
-      rulesArr.push(r)
-    })
-  })
-
-  const rulesFilter = rulesArr.filter((r) => r.content.toUpperCase().includes(search.toUpperCase()))
-  const rulesList = search ? rulesFilter : []
-  const displayResult = rulesList.map((r) => <Segment key={r.id}><ul><li key={r.id}>{r.id}{r.content}</li></ul> </Segment>)
+  const displayResult = rules.map((r) => <Segment key={r.id}><ul><li key={r.id}>{r.id} {r.content}</li></ul> </Segment>)
 
   return (
     <>
@@ -43,7 +43,7 @@ const App = () => {
       <Router>
         <Container>
           <Menu>
-            <Menu.Item as={Link} to='/chapters' onClick={handleResetSearch}>Chapters
+            <Menu.Item as={Link} to='/' onClick={handleResetSearch}>Chapters
             </Menu.Item>
             <Menu.Item position='right'>
               <Input icon='search' placeholder='Search...' onChange={handleSearch} onRest={handleResetSearch} />
@@ -55,7 +55,7 @@ const App = () => {
         <Container>
           <Switch>
             <Route path='/chapters/:id'>
-              <Rules chapters={chapters} />
+              <Rules />
             </Route>
             <Route path='/'>
               <Chapters chapters={chapters} />
